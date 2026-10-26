@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AEO Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#F5F0E8;--warm:#E8DFD3;--white:#FFFDF9;--dark:#2D2320;--mid:#6E5F57;--berry:#A8174A;--pink:#F2B8C6;--gingham:#E8A0A0;--sage:#5E8A47;--dark-sage:#3D5230;--amber:#9A6A00;--display:'Playfair Display',Georgia,serif;--body:'DM Sans',-apple-system,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{color-scheme:light}
+body{font-family:var(--body);background:var(--cream);color:var(--dark);line-height:1.6;font-size:17px;padding:40px 22px 80px}
+.wrap{max-width:860px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15}
+h1{font-size:46px;font-weight:800}
+h2{font-size:30px;margin-bottom:6px}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--berry);color:var(--berry);font-size:12.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:999px}
+.divider{width:56px;height:4px;background:var(--berry);border-radius:2px;margin:14px 0}
+.lead{font-size:19px;color:var(--mid)}
+.inside{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}
+.inside div{background:var(--white);border:1px solid var(--warm);border-radius:14px;padding:16px;text-align:center}
+.inside b{display:block;font:800 40px/1 var(--display);color:var(--berry)}
+.inside span{font-size:14px;color:var(--mid);font-weight:600}
+.card{background:var(--white);border:1px solid var(--warm);border-radius:16px;padding:24px;margin-top:22px}
+.lbl{font-size:12.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--berry)}
+.step{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.num{width:44px;height:44px;border-radius:50%;background:var(--berry);color:#fff;font:800 20px var(--body);display:grid;place-items:center;flex:none}
+.muted{color:var(--mid);font-size:15.5px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+.chip{font-size:13px;font-weight:700;padding:5px 11px;border-radius:999px;background:#EFF4EB;border:1px solid #C8D9BE;color:var(--dark-sage)}
+.chip.paid{background:#FBF4E2;border-color:#E9D49E;color:#6E4C00}
+.code{background:var(--dark);border-radius:12px;overflow:hidden;margin-top:12px}
+.code .ch{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(232,223,211,.14)}
+.code .ch span{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--pink)}
+.copy{background:var(--berry);color:#fff;border:none;border-radius:7px;font:700 13px var(--body);padding:6px 13px;cursor:pointer}
+.code pre{padding:16px 18px;font:14px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;color:#EDE4DC;white-space:pre-wrap;word-break:break-word}
+ul.ck{list-style:none;margin-top:10px}
+ul.ck li{padding:6px 0 6px 30px;position:relative}
+ul.ck li::before{content:'✓';position:absolute;left:0;color:var(--sage);font-weight:800}
+.note{background:#FDF0F4;border:1px solid var(--gingham);border-left:5px solid var(--berry);border-radius:14px;padding:18px 20px;margin-top:22px}
+.links a{display:block;color:var(--berry);font-weight:700;text-decoration:none;padding:6px 0;border-bottom:1px dashed var(--warm)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--dark);color:var(--cream);font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:10px;opacity:0;visibility:hidden;transition:.25s}
+.toast.on{opacity:1;visibility:visible;transform:translate(-50%,0)}
+@media(max-width:640px){h1{font-size:34px}.inside{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">Get Found · Part 1 · @vibha.in.progress</span>
+  <h1 style="margin-top:16px">The AEO Guide: get ChatGPT to recommend you</h1>
+  <div class="divider"></div>
+  <p class="lead">Five steps, every prompt I mentioned in the reel, and the tracker that tells you the week ChatGPT starts recommending you. No ads, no agency.</p>
+
+  <div class="inside" id="inside"><div><b>5</b><span>steps, in order</span></div><div><b>8</b><span>copy-paste prompts</span></div><div><b>1</b><span>AEO Tracker, checks every Monday</span></div></div>
+
+  <div class="card" id="need">
+    <span class="lbl">What you need</span>
+    <ul class="ck">
+      <li><b>Claude</b> (Pro plan) or <b>Codex</b> (ChatGPT plan). Either works for every prompt.</li>
+      <li><b>DataForSEO</b> connected to Claude. It has free trial credit, then costs pennies per lookup. <a href="https://dataforseo.com/model-context-protocol">Setup page</a></li>
+      <li><b>Claude Code</b>, only for the Gatekeeper step (the free Claude SEO pack runs there).</li>
+      <li>Your website, store export, or product links.</li>
+    </ul>
+  </div>
+
+  <div class="card" id="s1">
+    <div class="step"><div class="num">1</div><h2>The Interviewer</h2></div>
+    <p class="muted">It questions you first, then finds the real questions your buyers ask ChatGPT and Google.</p>
+    <div class="chips"><span class="chip paid">Claude or Codex</span><span class="chip paid">DataForSEO MCP</span></div>
+    <div class="code"><div class="ch"><span>Prompt 1 · Interviewer</span><button class="copy" data-copy>Copy</button></div><pre>You are my Interviewer. Before you research anything, interview me. Ask one question at a time, 8 questions max, and wait for my answer each time:
+1. What I sell, and my best seller
+2. Who buys it, and why they pick me over others
+3. Where I sell and ship, and my price range
+4. My website and my 3 biggest competitors
+
+Then use the DataForSEO connector (Keyword Data + AI Optimization) to find the real questions people in my niche ask ChatGPT and Google.
+
+Give me my top 10 buyer questions as a table: question, monthly searches, intent (buy, compare or learn), and whether my site answers it today.
+
+Never guess a number. If DataForSEO has no data for a question, say so.</pre></div>
+  </div>
+
+  <div class="card" id="s2">
+    <div class="step"><div class="num">2</div><h2>The Rewriter</h2></div>
+    <p class="muted">The first two lines of a page are what AI actually quotes. This makes them answer your buyer questions.</p>
+    <div class="chips"><span class="chip paid">Claude or Codex</span><span class="chip">Your site or CMS · you approve</span></div>
+    <div class="code"><div class="ch"><span>Prompt 2 · Rewriter</span><button class="copy" data-copy>Copy</button></div><pre>You are my Rewriter. Here are my 10 buyer questions: [paste the Interviewer's table].
+
+Read every page on my website: [URL, site folder, or Shopify / WordPress export].
+
+For every page:
+1. Match it to the one buyer question it should answer.
+2. Rewrite the first two lines so they answer that question directly, in plain words, with a real number: price, size range, delivery time.
+3. Add an FAQ section with 3 to 5 of the buyer questions, answered in 2 to 3 sentences each.
+4. Make it AI readable: one H1, the questions as H2s, short paragraphs, FAQPage schema.
+
+Show me a before and after for every page. Change nothing until I approve.</pre></div>
+  </div>
+
+  <div class="card" id="s3">
+    <div class="step"><div class="num">3</div><h2>The Gatekeeper</h2></div>
+    <p class="muted">Checks if AI crawlers can even read your site. Install the free Claude SEO pack first.</p>
+    <div class="chips"><span class="chip">Claude SEO pack · free, open source</span><span class="chip paid">Claude Code</span></div>
+    <div class="code"><div class="ch"><span>Prompt 3a · Install (paste into Claude Code)</span><button class="copy" data-copy>Copy</button></div><pre>/plugin marketplace add AgriciDaniel/claude-seo
+/plugin install claude-seo@agricidaniel-claude-seo
+/seo setup</pre></div>
+    <div class="code"><div class="ch"><span>Prompt 3b · Gatekeeper check</span><button class="copy" data-copy>Copy</button></div><pre>Run /seo geo on [https://mywebsite.com].
+
+Then check my robots.txt, my sitemap, and any firewall or CDN bot settings (Cloudflare, Shopify, Wix, Squarespace) for these AI crawlers: OAI-SearchBot, ChatGPT-User, GPTBot, ClaudeBot, PerplexityBot, Google-Extended.
+
+1. Tell me which ones are blocked, and where they're blocked.
+2. Explain what each one does in one line. OAI-SearchBot is the one that puts me in ChatGPT search.
+3. Give me the exact lines to fix it, plus where to click in Cloudflare if that's the blocker.
+4. If I don't want my content used for AI training, keep GPTBot blocked but allow OAI-SearchBot.
+
+Change nothing until I approve.</pre></div>
+  </div>
+
+  <div class="card" id="s4">
+    <div class="step"><div class="num">4</div><h2>Products: the Feed Builder · Services: your listings</h2></div>
+    <p class="muted">ChatGPT can take a product feed straight from you. Service businesses get found through Google and Bing listings.</p>
+    <div class="chips"><span class="chip paid">Claude or Codex</span><span class="chip">ChatGPT merchant program · apply</span><span class="chip">Google Business Profile · free</span><span class="chip">Bing Places · free</span></div>
+    <div class="code"><div class="ch"><span>Prompt 4a · Feed Builder (products)</span><button class="copy" data-copy>Copy</button></div><pre>You are my Feed Builder. Read my store: [Shopify / WooCommerce export, product CSV, or my product page URLs].
+
+1. Build a product feed that follows OpenAI's Product Feed Spec (developers.openai.com/commerce). Every product needs all 9 required fields: item_id, title, description, url, brand, seller_name, image_url, availability, price.
+2. Use group_id to group sizes and colours of the same product.
+3. Flag every product that's missing a required field, and tell me where to find it.
+4. Rewrite titles and descriptions the way a shopper would actually ask for them.
+
+Give me the feed as a CSV, ready to submit once I'm approved at chatgpt.com/merchants.</pre></div>
+    <div class="code"><div class="ch"><span>Prompt 4b · Listings (services)</span><button class="copy" data-copy>Copy</button></div><pre>I run a service business: [what I do] in [my city]. My top buyer questions are: [paste them].
+
+1. Give me a checklist to fill my Google Business Profile 100%: primary and secondary categories, every service with a price, hours, service area, 10+ photos, and products.
+2. Write my business description (750 characters max) so it answers my top 3 buyer questions in plain words.
+3. Write 5 Q&As for my profile, using my buyer questions.
+4. Then walk me through Bing Places: import from Google in one click, then fix anything that didn't copy over.
+
+My name, address and phone must match my website exactly, everywhere.</pre></div>
+  </div>
+
+  <div class="card" id="s5">
+    <div class="step"><div class="num">5</div><h2>Real reviews</h2></div>
+    <p class="muted">Good or bad. The more real, the better.</p>
+    <div class="code"><div class="ch"><span>Prompt 5 · Reviews</span><button class="copy" data-copy>Copy</button></div><pre>Write me a short, warm message asking my recent customers for an honest review, good or bad, on Google and on my website.
+
+1. Mention what they bought, and when it arrived.
+2. Say why it matters: every review helps the next person decide, and tells us what to fix.
+3. If I offer a thank-you discount, it goes to everyone who leaves a review, whatever the rating, and the message says so clearly.
+4. Give me a WhatsApp version (under 60 words) and an email version with a subject line.
+
+Sound like a real person, not a brand. The more real, the better.</pre></div>
+  </div>
+
+  <div class="card" id="s6">
+    <div class="step"><div class="num">✓</div><h2>The AEO Tracker, every Monday</h2></div>
+    <p class="muted">Open the <a href="tracker.html">AEO Tracker</a> (free, works in your browser), then set it to check your 10 questions every week.</p>
+    <div class="code"><div class="ch"><span>Prompt 6 · Scheduled task</span><button class="copy" data-copy>Copy</button></div><pre>Set this up as a scheduled task that runs every Monday at 9am:
+
+1. Ask my 10 buyer questions using the DataForSEO AI Optimization API (LLM Responses for ChatGPT): [paste my questions].
+2. For each question, record whether [my brand] is recommended, and at what position.
+3. Add this week's column to my AEO Tracker artifact and update the rank chart.
+4. Mark the week ChatGPT first recommends me, and flag any week I drop off.
+5. Tell me what changed since last week and the one fix most likely to move me up.
+
+Draft the fix, but don't publish anything until I approve.</pre></div>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Honest notes</span>
+    <ul class="ck">
+      <li>Nobody can guarantee ChatGPT picks you. This is how you get on the shelf and see where you stand.</li>
+      <li>The ChatGPT merchant program is application-based right now, and may not be open in every country yet. The other steps work anywhere.</li>
+      <li>Paying only for good reviews breaks Google's rules and US law. Thank everyone who reviews, whatever the rating.</li>
+    </ul>
+  </div>
+
+  <div class="card links">
+    <span class="lbl">Links</span>
+    <a href="https://chatgpt.com/merchants">ChatGPT merchant program (apply)</a>
+    <a href="https://developers.openai.com/commerce/specs/file-upload/products">OpenAI Product Feed Spec</a>
+    <a href="https://platform.openai.com/docs/bots">OpenAI crawlers (OAI-SearchBot vs GPTBot)</a>
+    <a href="https://github.com/AgriciDaniel/claude-seo">Claude SEO pack on GitHub</a>
+    <a href="https://dataforseo.com/model-context-protocol">DataForSEO MCP</a>
+    <a href="https://www.google.com/business/">Google Business Profile</a>
+    <a href="https://www.bingplaces.com">Bing Places</a>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:30px">Made by @vibha.in.progress · a non-technical person making AI more accessible to everybody</p>
+</div>
+<div class="toast" id="toast">Copied ✓</div>
+<script>
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const t=b.closest('.code').querySelector('pre').innerText;
+  const done=()=>{const el=document.getElementById('toast');el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1600)};
+  try{navigator.clipboard.writeText(t).then(done,()=>{fallback(t);done()})}catch(_){fallback(t);done()}});
+function fallback(t){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}
+</script>
+</body>
+</html>

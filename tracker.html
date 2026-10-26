@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEO Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F0E8;--warm:#E8DFD3;--white:#FFFDF9;--dark:#2D2320;--mid:#6E5F57;
+  --berry:#A8174A;--pink:#F2B8C6;--gingham:#E8A0A0;--sage:#5E8A47;--dark-sage:#3D5230;--burgundy:#7A1B1B;--amber:#9A6A00;
+  --display:'Playfair Display',Georgia,serif;--body:'DM Sans',-apple-system,sans-serif;
+  --r:14px;--shadow:0 2px 14px rgba(45,35,32,.07);--gap:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{color-scheme:light}
+body{font-family:var(--body);background:var(--cream);color:var(--dark);line-height:1.5;padding:30px 26px 72px;font-size:16px}
+.wrap{max-width:1100px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15}
+h1{font-size:42px;font-weight:800}
+h2{font-size:28px;font-weight:700}
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--sage);color:var(--sage);font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:6px 13px;border-radius:999px}
+.badge::before{content:'';width:8px;height:8px;background:var(--sage);border-radius:50%;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.divider{width:56px;height:4px;background:var(--berry);border-radius:2px;margin:12px 0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px}
+.sub{font-size:17px;color:var(--mid)}
+.sub b{color:var(--dark)}
+.example{font-size:12.5px;font-weight:600;color:var(--mid);background:var(--warm);padding:4px 10px;border-radius:6px}
+.meta{text-align:right;font-size:14px;color:var(--mid);line-height:1.7}
+.meta b{color:var(--dark)}
+/* stats */
+.stats{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:14px;margin-top:24px}
+.stat{background:var(--white);border:1px solid var(--warm);border-radius:var(--r);padding:18px 14px;text-align:center;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center}
+.stat .n{font-family:var(--display);font-size:38px;font-weight:800;line-height:1;color:var(--berry)}
+.stat .l{font-size:13.5px;color:var(--mid);margin-top:8px;font-weight:600}
+.stat .d{font-size:13px;font-weight:700;margin-top:4px;color:var(--sage)}
+.stat.hero{background:var(--berry);border-color:var(--berry)}
+.stat.hero .n{font-size:58px;color:#fff}
+.stat.hero .l,.stat.hero .d{color:#FBE3EA}
+/* tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;border-bottom:2px solid var(--warm)}
+.tab{background:var(--white);border:1px solid var(--warm);border-bottom:none;border-radius:12px 12px 0 0;padding:11px 16px;font:700 15px var(--body);color:var(--mid);cursor:pointer;display:flex;align-items:center;gap:7px}
+.tab .st{font-size:10.5px;opacity:.7;font-weight:700}
+.tab.on{background:var(--dark);color:var(--cream);border-color:var(--dark)}
+/* panels: every block in a view gets the same rhythm */
+.panel{display:none;padding-top:28px;animation:fade .25s}
+.panel.on{display:block}
+.panel>*+*{margin-top:var(--gap)}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}}
+.vh h2{display:flex;align-items:center;gap:10px}
+.vh p{font-size:15.5px;color:var(--mid);margin-top:6px;max-width:760px}
+.vh p b{color:var(--dark)}
+.vhrow{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.lbl{font-size:12.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--berry)}
+.tools .lbl{margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#EFF4EB;border:1px solid #C8D9BE;color:var(--dark-sage);font-size:13.5px;font-weight:700;padding:6px 12px;border-radius:999px}
+.chip::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 3px rgba(94,138,71,.2)}
+.chip i{font-style:normal;font-weight:600;opacity:.75}
+.chip.paid{background:#FBF4E2;border-color:#E9D49E;color:#6E4C00}
+.chip.paid::before{background:var(--amber);box-shadow:0 0 0 3px rgba(154,106,0,.18)}
+/* result tiles */
+.res{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.rt{background:var(--white);border:1px solid var(--warm);border-radius:12px;padding:16px 12px;text-align:center;box-shadow:var(--shadow)}
+.rt b{display:block;font:800 30px/1 var(--display);color:var(--dark)}
+.rt b.g{color:var(--sage)}.rt b.r{color:var(--burgundy)}.rt b.p{color:var(--berry)}
+.rt span{display:block;font-size:13.5px;color:var(--mid);margin-top:7px;font-weight:600}
+.card{background:var(--white);border:1px solid var(--warm);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);min-width:0}
+.cardhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);align-items:start}
+.split.side{grid-template-columns:340px 1fr}
+.btn{background:var(--berry);color:#fff;border:none;border-radius:10px;font:700 15px var(--body);padding:11px 18px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--white);color:var(--dark);border:1.5px solid var(--warm)}
+.btn.dark{background:var(--dark)}
+.btn.sm{font-size:13.5px;padding:8px 13px}
+.btn:disabled{opacity:.55;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+/* chart */
+#chart{width:100%;height:auto;display:block}
+/* shelf answer: ChatGPT-style product tiles */
+.fcstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:10px}
+.fcstats div{background:#F7F3EE;border-radius:12px;padding:12px 14px}
+.fcstats b{display:block;font:800 34px/1 var(--display);color:var(--berry)}.fcstats b.g{color:var(--sage)}
+.fcstats span{font-size:13.5px;color:var(--mid);font-weight:600}
+#fc{width:100%;height:auto;display:block}
+.ask{display:inline-flex;background:#F4EEE6;border:1px solid var(--warm);border-radius:999px;padding:9px 18px;font-size:15.5px;font-weight:600}
+.shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pc{border:1.5px solid var(--warm);border-radius:14px;padding:12px;background:#fff;transition:border-color .3s,box-shadow .3s;min-width:0}
+.pc .im{height:92px;border-radius:10px;position:relative}
+.pc .rk{position:absolute;top:8px;left:8px;width:30px;height:30px;border-radius:50%;background:var(--white);font:800 16px var(--display);display:grid;place-items:center;color:var(--mid)}
+.pc b{display:block;font-size:16px;margin-top:10px}
+.pc .ds{font-size:13.5px;color:var(--mid);margin-top:2px}
+.pc .st{font-size:13.5px;font-weight:700;color:var(--amber);margin-top:6px}
+.pc.you{border:2.5px solid var(--berry);box-shadow:0 0 0 5px rgba(168,23,74,.12)}
+.pc.you .rk{background:var(--berry);color:#fff}
+.youtag{background:var(--berry);color:#fff;font:800 10.5px var(--body);padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:2px;letter-spacing:.04em}
+/* tables */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--warm);background:var(--dark);padding:11px 12px;font-weight:700;white-space:nowrap}
+th:first-child{border-radius:10px 0 0 0}th:last-child{border-radius:0 10px 0 0}
+td{padding:11px 12px;border-top:1px solid var(--warm);vertical-align:middle}
+.hc{text-align:center;font-weight:800;font-size:14px}
+td.c0{color:#B5A69C}
+td.c1{background:#E3EFDA;color:var(--dark-sage)}
+td.c2{background:#EEF3E4;color:var(--dark-sage)}
+td.c3{background:#FCF1DC;color:#7A5500}
+.new{animation:pop .45s}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px}
+.t-buy{background:#FDF0F4;color:var(--berry);border:1px solid var(--gingham)}
+.t-cmp{background:#FEF6E4;color:#7A5500;border:1px solid #E9D49E}
+.t-learn{background:#EFF4EB;color:var(--dark-sage);border:1px solid #C8D9BE}
+.ok{color:var(--sage);font-weight:800}.no{color:var(--burgundy);font-weight:800}
+/* checks */
+.checks{display:grid;gap:8px}
+.checks:empty{display:none}
+.ck{display:flex;align-items:center;gap:10px;font-size:15px;padding:10px 12px;border-radius:10px;background:#F7F3EE;color:var(--mid);font-weight:600}
+.ck .dot{width:22px;height:22px;border-radius:50%;border:2.5px solid #CDBFB3;flex:none;display:grid;place-items:center;font-size:12px;color:#fff}
+.ck.run .dot{border-color:var(--berry);border-top-color:transparent;animation:spin .7s linear infinite}
+.ck.done{color:var(--dark);background:#EFF4EB}
+.ck.done .dot{background:var(--sage);border-color:var(--sage)}
+.ck .res2{margin-left:auto;font-size:13.5px;font-weight:700}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* code */
+.code{background:var(--dark);border-radius:12px;overflow:hidden}
+.code .ch{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid rgba(232,223,211,.14)}
+.code .ch span{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--pink)}
+.copy{background:var(--berry);color:#fff;border:none;border-radius:7px;font:700 13px var(--body);padding:6px 13px;cursor:pointer}
+.code pre{padding:16px 18px;font:13.5px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;color:#EDE4DC;white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
+.code pre .add{color:#B8E0A0}.code pre .del{color:#F2A0A8;text-decoration:line-through}
+/* next step */
+.next{background:#FDF0F4;border:1px solid var(--gingham);border-left:5px solid var(--berry);border-radius:var(--r);padding:20px 22px}
+.next .lbl{display:block;margin-bottom:6px}
+.next p{font-size:15.5px;margin-bottom:14px}
+/* form */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.full{grid-column:1/-1}
+.f label{font-size:13px;font-weight:700;color:var(--mid)}
+.f input,.f textarea{font:15px var(--body);padding:10px 12px;border:1.5px solid var(--warm);border-radius:9px;background:#fff;color:var(--dark);width:100%}
+.f textarea{min-height:60px;resize:vertical}
+.meter{height:10px;background:var(--warm);border-radius:6px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--sage);transition:width .5s}
+.mrow{display:flex;align-items:center;gap:12px;margin:16px 0}
+.mrow .meter{flex:1}
+.mrow span{font-size:13.5px;font-weight:700;color:var(--mid);white-space:nowrap}
+/* rewriter */
+.pages{display:grid;gap:8px}
+.pg{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:12px 14px;border:1.5px solid var(--warm);border-radius:11px;cursor:pointer;background:#fff}
+.pg.sel{border-color:var(--berry);background:#FDF5F8}
+.pg b{font-size:15px}.pg span{font-size:12.5px;color:var(--mid);display:block}
+.score{font:800 19px var(--display)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border-radius:12px;padding:16px;font-size:15.5px;line-height:1.55}
+.box.before{background:#FDF0F0;border:1.5px dashed #E0B4B4;color:#6b4a4a}
+.box.after{background:#EFF4EB;border:1.5px solid #BBD3AC}
+.box .bl{font-size:11.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.box mark{background:#D4E8C2;padding:0 3px;border-radius:3px}
+.faq{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.faq div{background:#F7F3EE;border-radius:10px;padding:10px 12px;font-size:14px;font-weight:600}
+.faq div::before{content:'Q ';color:var(--berry);font-weight:800}
+.stack>*+*{margin-top:16px}
+/* bots */
+.bots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bot{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--warm);border-radius:11px;background:#fff;transition:border-color .3s}
+.bot b{font-size:15.5px;font-family:ui-monospace,Menlo,monospace}
+.bot span{font-size:13px;color:var(--mid);display:block}
+.pill{font-size:13px;font-weight:800;padding:5px 12px;border-radius:999px;background:var(--warm);color:var(--mid);white-space:nowrap}
+.pill.y{background:#E3EFDA;color:var(--dark-sage)}
+.pill.n{background:#F8DCDC;color:var(--burgundy)}
+/* feed */
+.seg{display:inline-flex;background:var(--warm);border-radius:999px;padding:4px}
+.seg button{border:none;background:none;font:700 14.5px var(--body);padding:9px 16px;border-radius:999px;cursor:pointer;color:var(--mid)}
+.seg button.on{background:var(--dark);color:var(--cream)}
+.miss{background:#FDF0F0;color:var(--burgundy);border-radius:6px;padding:2px 7px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.tasks{display:grid;gap:8px}
+.task{display:flex;gap:11px;align-items:flex-start;padding:12px;border:1.5px solid var(--warm);border-radius:11px;background:#fff;cursor:pointer;font-size:15px}
+.task input{width:20px;height:20px;accent-color:var(--sage);margin-top:2px;flex:none}
+.task.done{background:#EFF4EB;border-color:#BBD3AC}
+.task span{display:block;font-size:13px;color:var(--mid)}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{font-size:13.5px;font-weight:700;color:var(--berry);background:#FDF0F4;border:1px solid var(--gingham);padding:7px 12px;border-radius:8px;text-decoration:none}
+details summary{cursor:pointer;font-weight:700;color:var(--mid);font-size:14.5px}
+/* reviews */
+.bigscore{font:800 60px/1 var(--display)}
+.bars .br{display:grid;grid-template-columns:40px 1fr 40px;gap:10px;align-items:center;font-size:14.5px;font-weight:700;margin-bottom:8px}
+.bars .tr{height:14px;background:var(--warm);border-radius:7px;overflow:hidden}
+.bars .tr i{display:block;height:100%;background:#E3A33B;width:0;transition:width 1s}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.stars button{border:1.5px solid var(--warm);background:#fff;border-radius:8px;padding:7px 11px;font:700 14px var(--body);cursor:pointer;color:var(--dark)}
+.stars button:hover{border-color:#E3A33B}
+.msg{background:#EFF4EB;border:1.5px solid #BBD3AC;border-radius:12px;padding:16px;font-size:15px;white-space:pre-wrap;line-height:1.55}
+.muted{font-size:14px;color:var(--mid)}
+/* intel + build your own */
+.intel{background:var(--dark);color:var(--cream);border-radius:var(--r);padding:24px}
+.intel .lbl{color:var(--pink);display:block;margin-bottom:14px}
+.ig{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ii{background:rgba(255,255,255,.06);border:1px solid rgba(232,223,211,.14);border-radius:12px;padding:16px}
+.ii b{display:block;font:800 30px var(--display);color:#fff}
+.ii span{font-size:14px;color:#D8CCC4;display:block;margin-top:4px}
+.intel h3{font-size:24px;color:var(--cream);margin-bottom:6px}
+.intel p{color:#C8BDB8;font-size:15px;margin-bottom:16px}
+.intel .code{background:#3A2E2A;border:1px solid rgba(232,223,211,.12)}
+.replay{position:fixed;right:16px;bottom:16px;width:42px;height:42px;border-radius:50%;border:1px solid var(--warm);background:var(--white);color:var(--mid);font-size:19px;cursor:pointer;opacity:.45;box-shadow:var(--shadow)}
+.replay:hover{opacity:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--dark);color:var(--cream);font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:10px;transition:.25s;z-index:9;opacity:0;visibility:hidden;pointer-events:none}
+.toast.on{transform:translate(-50%,0);opacity:1;visibility:visible}
+.foot{text-align:center;margin-top:36px;font-size:13px;color:var(--mid)}
+@media(max-width:900px){
+  .split,.split.side,.ba{grid-template-columns:1fr}
+  .shelf{grid-template-columns:1fr 1fr}
+  .faq{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  body{padding:20px 16px 72px}
+  h1{font-size:34px}h2{font-size:24px}
+  :root{--gap:18px}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat.hero{grid-column:1/-1}
+  .res{grid-template-columns:1fr 1fr}
+  .ig,.bots,.fg{grid-template-columns:1fr}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{padding:9px 12px;font-size:13.5px;flex:none}
+  .tab .st{display:none}
+  .meta{text-align:left}
+  .hidem,.hidew{display:none}
+  .card{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="head">
+  <div>
+    <span class="badge">Checked every Monday · DataForSEO + Claude</span>
+    <h1 style="margin-top:14px">AEO Tracker</h1>
+    <div class="divider"></div>
+    <p class="sub"><b class="bn">Mudra Active</b> · 10 buyer questions · <b>#2</b> on ChatGPT's shelf</p>
+  </div>
+  <div class="meta">
+    <div>Last check <b>Mon 26 Oct, 9:00</b></div>
+    <div>Next check <b>Mon 2 Nov, 9:00</b></div>
+    <span class="example">Example data</span>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat hero"><div class="n" id="sRank">—</div><div class="l">Shelf rank on ChatGPT</div><div class="d">not listed 8 weeks ago</div></div>
+  <div class="stat"><div class="n" id="sQ">0/10</div><div class="l">Questions you're recommended in</div><div class="d">▲ from 0</div></div>
+  <div class="stat"><div class="n" id="sBots">0/6</div><div class="l">AI crawlers allowed</div><div class="d">▲ from 3/6</div></div>
+  <div class="stat"><div class="n" id="sFeed">0</div><div class="l">Products in your feed</div><div class="d">9/9 required fields</div></div>
+  <div class="stat"><div class="n" id="sRev">0</div><div class="l">Honest reviews</div><div class="d" id="sRevAvg">4.6 average</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" data-t="shelf">📈 The Shelf</button>
+  <button class="tab" data-t="interviewer">🎙️ Interviewer <span class="st">· 01</span></button>
+  <button class="tab" data-t="rewriter">✍️ Rewriter <span class="st">· 02</span></button>
+  <button class="tab" data-t="gatekeeper">🛡️ Gatekeeper <span class="st">· 03</span></button>
+  <button class="tab" data-t="feed">🛍️ Feed Builder <span class="st">· 04</span></button>
+  <button class="tab" data-t="reviews">⭐ Reviews <span class="st">· 05</span></button>
+</div>
+
+<!-- ================= SHELF ================= -->
+<section class="panel on" id="p-shelf">
+  <div class="vh"><h2>📈 The Shelf</h2><p>Asks ChatGPT your 10 buyer questions every Monday. <b>Result:</b> the exact week it starts recommending you, and at what rank.</p></div>
+  <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip paid">Claude scheduled task <i>· your plan</i></span><span class="chip paid">DataForSEO AI Optimization <i>· pennies per check</i></span><span class="chip">AEO Tracker <i>· this page</i></span></div></div>
+
+  <div class="card">
+    <div class="cardhead"><span class="lbl">Your rank on ChatGPT, week by week</span><span class="muted">"best activewear brands in India for women"</span></div>
+    <svg id="chart" viewBox="0 0 1000 340" role="img" aria-label="Rank on ChatGPT over 8 weeks, from not listed to number 2"></svg>
+  </div>
+
+  <div class="card">
+    <div class="cardhead"><span class="lbl">This week's answer on ChatGPT</span><span class="ask">"best activewear brands in India for women"</span></div>
+    <div class="shelf" id="shelfRow"></div>
+  </div>
+
+  <div class="card" id="fcCard">
+    <div class="cardhead"><span class="lbl">Where you are today vs where you're heading</span><button class="btn ghost sm" id="fcPlay">▶ Replay</button></div>
+    <div class="fcstats"><div><b id="fcNow">70%</b><span>of buyer questions recommend you today</span></div><div><b class="g" id="fcGoal">90%</b><span>projected by week 12</span></div><div><b id="fcUp">+70</b><span>points since week 1</span></div></div>
+    <svg id="fc" viewBox="0 0 1000 380" role="img" aria-label="Share of ChatGPT answers recommending you, 8 weeks actual and 4 weeks projected"></svg>
+    <p class="muted" style="margin-top:8px">Dashed line is a projection if you keep shipping one fix a week. Not a guarantee.</p>
+  </div>
+
+  <div class="card">
+    <div class="cardhead"><span class="lbl">Every buyer question, every week</span><button class="btn" id="runWeek">Run this week's check</button></div>
+    <div class="tw"><table id="heat"></table></div>
+  </div>
+
+  <div class="intel">
+    <span class="lbl">What Claude concluded this week</span>
+    <div class="ig">
+      <div class="ii"><b>Week 4</b><span>First time ChatGPT recommended you, 9 days after the crawler fix</span></div>
+      <div class="ii"><b>7 of 10</b><span>Questions you show up in. The 3 misses are all price or men's questions</span></div>
+      <div class="ii"><b>Next fix</b><span>Add a "under ₹1,500" FAQ to the Leggings page. Draft is waiting in the Rewriter</span></div>
+    </div>
+  </div>
+
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Make the check run itself every Monday. Paste this into Claude:</p>
+    <div class="code"><div class="ch"><span>Scheduled task prompt</span><button class="copy" data-copy="pSched">Copy</button></div><pre id="pSched"></pre></div>
+  </div>
+
+  <div class="intel">
+    <span class="badge" style="background:transparent;border-color:var(--pink);color:var(--pink)">Build your own</span>
+    <h3 style="margin-top:14px">Want this for your brand? Paste this into Claude.</h3>
+    <p>It runs all five steps with you, then builds you this tracker for your own store.</p>
+    <div class="code"><div class="ch"><span>Master prompt</span><button class="copy" data-copy="pMaster">Copy</button></div><pre id="pMaster"></pre></div>
+  </div>
+</section>
+
+<!-- ================= INTERVIEWER ================= -->
+<section class="panel" id="p-interviewer">
+  <div class="vh"><h2>🎙️ The Interviewer</h2><p>Interviews you about your business first, then pulls what people in your niche actually ask AI. <b>Result:</b> your top 10 buyer questions.</p></div>
+  <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip paid">Claude or Codex <i>· your plan</i></span><span class="chip paid">DataForSEO MCP <i>· free trial credit</i></span></div></div>
+  <div class="res">
+    <div class="rt"><b id="iv1">412</b><span>Question ideas found</span></div>
+    <div class="rt"><b class="p" id="iv2">10</b><span>Buyer questions kept</span></div>
+    <div class="rt"><b id="iv3">18,490</b><span>Searches a month</span></div>
+    <div class="rt"><b class="g" id="iv4">7/10</b><span>Already answered on your site</span></div>
+  </div>
+  <div class="card">
+    <div class="cardhead"><span class="lbl">Your business, as Claude heard it</span><span class="muted">Saved in this browser</span></div>
+    <div class="fg">
+      <div class="f"><label>Brand name</label><input data-k="brand" value="Mudra Active"></div>
+      <div class="f"><label>Website</label><input data-k="site" value="mudraactive.in"></div>
+      <div class="f"><label>What do you sell?</label><input data-k="sell" value="Squat-proof leggings, sports bras and running shorts"></div>
+      <div class="f"><label>Who buys it?</label><input data-k="who" value="Women 22 to 38 who work out 3+ times a week"></div>
+      <div class="f"><label>Where and at what price?</label><input data-k="price" value="Ships across India, ₹999 to ₹2,499"></div>
+      <div class="f"><label>Why do people pick you?</label><input data-k="why" value="Fabric made for humid weather, sizes XS to 4XL, made in Tiruppur"></div>
+    </div>
+    <div class="mrow"><span>Context complete</span><div class="meter"><i id="ctxMeter" style="width:0"></i></div><span id="ctxPct">0%</span></div>
+    <button class="btn" id="runInterview">Find my buyer questions</button>
+    <div class="checks" id="ivChecks" style="margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <div class="cardhead"><span class="lbl">Your top 10 buyer questions</span><button class="btn ghost sm" id="copyQ">Copy all 10</button></div>
+    <div class="tw"><table id="qTable"></table></div>
+  </div>
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Run your own interview. Paste this into Claude or Codex with the DataForSEO connector on:</p>
+    <div class="code"><div class="ch"><span>The Interviewer prompt</span><button class="copy" data-copy="pInt">Copy</button></div><pre id="pInt"></pre></div>
+  </div>
+</section>
+
+<!-- ================= REWRITER ================= -->
+<section class="panel" id="p-rewriter">
+  <div class="vh"><h2>✍️ The Rewriter</h2><p>Checks every page against your 10 buyer questions and rewrites the first two lines, the part AI actually quotes. <b>Result:</b> pages ChatGPT can lift an answer from.</p></div>
+  <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip paid">Claude or Codex <i>· your plan</i></span><span class="chip">Your site files or CMS <i>· you approve every change</i></span></div></div>
+  <div class="res">
+    <div class="rt"><b>6</b><span>Pages checked</span></div>
+    <div class="rt"><b class="p" id="rwAvg">37</b><span>Avg AI readability /100</span></div>
+    <div class="rt"><b id="rwFaq">0</b><span>FAQs added</span></div>
+    <div class="rt"><b class="g" id="rwDone">0/6</b><span>Rewrites approved</span></div>
+  </div>
+  <div class="split side">
+    <div class="card">
+      <div class="cardhead"><span class="lbl">Pages vs buyer questions</span></div>
+      <div class="pages" id="pages"></div>
+      <button class="btn" id="rewriteAll" style="width:100%;justify-content:center;margin-top:14px">Rewrite all 6 pages</button>
+    </div>
+    <div class="card stack">
+      <div class="cardhead" style="margin:0"><span class="lbl" id="pgTitle">Page</span><div class="row"><button class="btn ghost sm" data-copy="after">Copy rewrite</button><button class="btn sm" id="approve">Approve rewrite</button></div></div>
+      <div class="ba">
+        <div class="box before"><div class="bl">Before · first two lines</div><div id="before"></div></div>
+        <div class="box after"><div class="bl">After · answers the question</div><div id="after"></div></div>
+      </div>
+      <div><div class="lbl" style="margin-bottom:8px">New FAQ on this page</div><div class="faq" id="faq"></div></div>
+      <div class="checks" id="pgChecks"></div>
+    </div>
+  </div>
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Paste your 10 questions from the Interviewer into this prompt:</p>
+    <div class="code"><div class="ch"><span>The Rewriter prompt</span><button class="copy" data-copy="pRew">Copy</button></div><pre id="pRew"></pre></div>
+  </div>
+</section>
+
+<!-- ================= GATEKEEPER ================= -->
+<section class="panel" id="p-gatekeeper">
+  <div class="vh"><h2>🛡️ The Gatekeeper</h2><p>Checks if AI crawlers can even read your site. So many sites block ChatGPT without knowing it. <b>Result:</b> the exact lines to unblock it.</p></div>
+  <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip">Claude SEO pack · /seo geo <i>· free, open source</i></span><span class="chip paid">Claude Code <i>· your plan</i></span></div></div>
+  <div class="res">
+    <div class="rt"><b>6</b><span>AI crawlers checked</span></div>
+    <div class="rt"><b class="r" id="gk1">?</b><span>Blocked</span></div>
+    <div class="rt"><b id="gk2">?</b><span>Blocked at Cloudflare</span></div>
+    <div class="rt"><b class="p" id="gk3">?/6</b><span>Can read your site</span></div>
+  </div>
+  <div class="card">
+    <div class="cardhead"><span class="lbl">AI crawlers on <span class="bsite">mudraactive.in</span></span>
+      <div class="row"><a class="btn ghost sm" id="openRobots" target="_blank" rel="noopener">Open my robots.txt ↗</a><button class="btn sm" id="runGate">Check AI crawlers</button><button class="btn dark sm" id="fixBots" disabled>Preview the fix</button></div></div>
+    <div class="bots" id="bots"></div>
+  </div>
+  <div class="split">
+    <div class="code"><div class="ch"><span>robots.txt · <span id="robLbl">today</span></span><button class="copy" data-copy="robots">Copy</button></div><pre id="robots"></pre></div>
+    <div class="code"><div class="ch"><span>Install the free Claude SEO pack</span><button class="copy" data-copy="pInstall">Copy</button></div><pre id="pInstall"></pre></div>
+  </div>
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Install the pack above in Claude Code, then run this:</p>
+    <div class="code"><div class="ch"><span>The Gatekeeper prompt</span><button class="copy" data-copy="pGate">Copy</button></div><pre id="pGate"></pre></div>
+  </div>
+</section>
+
+<!-- ================= FEED ================= -->
+<section class="panel" id="p-feed">
+  <div class="vhrow">
+    <div class="vh"><h2>🛍️ The Feed Builder</h2><p>Products? ChatGPT takes a product feed straight from you. Services? It reads your Google and Bing listings. <b>Result:</b> you're on the shelf as data, not just as a website.</p></div>
+    <div class="seg" id="seg"><button class="on" data-m="products">I sell products</button><button data-m="services">I sell services</button></div>
+  </div>
+  <div id="mProducts" class="stack">
+    <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip paid">Claude or Codex <i>· your plan</i></span><span class="chip">OpenAI Product Feed Spec <i>· 9 required fields</i></span><span class="chip">ChatGPT merchant program <i>· free to apply, approval needed</i></span></div></div>
+    <div class="res" style="margin-top:var(--gap)">
+      <div class="rt"><b id="fd1">8</b><span>Products read</span></div>
+      <div class="rt"><b>9</b><span>Required fields each</span></div>
+      <div class="rt"><b class="r" id="fd2">0</b><span>Missing fields</span></div>
+      <div class="rt"><b class="g" id="fd3">0</b><span>Ready to submit</span></div>
+    </div>
+    <div class="card" style="margin-top:var(--gap)">
+      <div class="cardhead"><span class="lbl">Your store, checked against the spec</span><div class="row"><button class="btn sm" id="buildFeed">Build my feed</button><button class="btn ghost sm" id="dlFeed">Download CSV</button></div></div>
+      <div class="tw"><table id="feedTable"></table></div>
+      <details style="margin-top:16px"><summary>+ Add your own product</summary>
+        <div class="fg" style="margin-top:12px">
+          <div class="f"><label>Title</label><input data-a="title" placeholder="High-rise squat-proof leggings, black"></div>
+          <div class="f"><label>Price (₹)</label><input data-a="price" placeholder="1499"></div>
+          <div class="f"><label>Product URL</label><input data-a="url" placeholder="https://yourstore.com/products/..."></div>
+          <div class="f"><label>Image URL</label><input data-a="image_url" placeholder="https://yourstore.com/img/..."></div>
+        </div>
+        <button class="btn ghost sm" id="addProd" style="margin-top:12px">Add product</button>
+      </details>
+      <div class="links" style="margin-top:16px"><a href="https://chatgpt.com/merchants" target="_blank" rel="noopener">Apply: chatgpt.com/merchants ↗</a><a href="https://developers.openai.com/commerce/specs/file-upload/products" target="_blank" rel="noopener">Product Feed Spec ↗</a></div>
+    </div>
+  </div>
+  <div id="mServices" class="stack" style="display:none">
+    <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip">Google Business Profile <i>· free</i></span><span class="chip">Bing Places <i>· free, imports from Google</i></span></div></div>
+    <div class="split" style="margin-top:var(--gap)">
+      <div class="card"><div class="cardhead"><span class="lbl">Google Business Profile</span><b id="gbpPct">0%</b></div><div class="meter" style="margin-bottom:14px"><i id="gbpM"></i></div><div class="tasks" id="gbp"></div><div class="links" style="margin-top:14px"><a href="https://www.google.com/business/" target="_blank" rel="noopener">google.com/business ↗</a></div></div>
+      <div class="card"><div class="cardhead"><span class="lbl">Bing Places</span><b id="bingPct">0%</b></div><div class="meter" style="margin-bottom:14px"><i id="bingM"></i></div><div class="tasks" id="bing"></div><div class="links" style="margin-top:14px"><a href="https://www.bingplaces.com" target="_blank" rel="noopener">bingplaces.com ↗</a></div></div>
+    </div>
+  </div>
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Point Claude at your store export (or your product page links) and paste this:</p>
+    <div class="code"><div class="ch"><span>The Feed Builder prompt</span><button class="copy" data-copy="pFeed">Copy</button></div><pre id="pFeed"></pre></div>
+  </div>
+</section>
+
+<!-- ================= REVIEWS ================= -->
+<section class="panel" id="p-reviews">
+  <div class="vh"><h2>⭐ Reviews</h2><p>AI trusts real reviews, good and bad. The more real, the better. <b>Result:</b> a steady stream of honest reviews, asked for the right way.</p></div>
+  <div class="tools"><div class="lbl">Tools live</div><div class="chips"><span class="chip paid">Claude or ChatGPT <i>· your plan</i></span><span class="chip">Google reviews <i>· free</i></span><span class="chip">WhatsApp or email <i>· free</i></span></div></div>
+  <div class="res">
+    <div class="rt"><b class="p" id="rv1">4.6</b><span>Average rating</span></div>
+    <div class="rt"><b id="rv2">212</b><span>Honest reviews</span></div>
+    <div class="rt"><b id="rv3">14</b><span>1 and 2 star, kept up</span></div>
+    <div class="rt"><b class="g">10%</b><span>Thank-you, for every reviewer</span></div>
+  </div>
+  <div class="split">
+    <div class="card">
+      <div class="cardhead"><span class="lbl">Rating breakdown</span><span class="muted">Real beats perfect</span></div>
+      <div class="bars" id="bars"></div>
+      <div class="lbl" style="margin:18px 0 8px">Log a new review</div>
+      <div class="stars" id="logStars"></div>
+    </div>
+    <div class="card stack">
+      <div class="cardhead" style="margin:0"><span class="lbl">Ask for an honest review</span><div class="seg" id="rseg"><button class="on" data-v="wa">WhatsApp</button><button data-v="em">Email</button></div></div>
+      <div class="msg" id="revMsg"></div>
+      <div class="row"><button class="btn sm" data-copy="revMsg">Copy message</button></div>
+      <p class="muted">Offering a discount? Give it to everyone who reviews, whatever the rating, and say so in the ask. Paying only for good reviews breaks Google's rules and US FTC law.</p>
+    </div>
+  </div>
+  <div class="next">
+    <span class="lbl">▶ Your next step</span>
+    <p>Get your own version of the message, in your voice:</p>
+    <div class="code"><div class="ch"><span>The Reviews prompt</span><button class="copy" data-copy="pRevP">Copy</button></div><pre id="pRevP"></pre></div>
+  </div>
+</section>
+
+<p class="foot">Built with Claude by @vibha.in.progress · checks every Monday at 9:00</p>
+</div>
+
+<button class="replay" id="replay" title="Replay" aria-label="Replay animation">↺</button>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('aeo_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('aeo_'+k,JSON.stringify(v))}catch(e){}}};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1900)};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- prompts ---------- */
+const P={
+pMaster:`You're my AEO strategist. I want ChatGPT to recommend my business. Work through these 5 steps with me, one at a time, and don't move on until I approve each one:
+
+1. Interviewer: ask me one question at a time about what I sell, who buys it and why, then use the DataForSEO connector to find my top 10 buyer questions.
+2. Rewriter: rewrite the first two lines of each page on my site to answer those questions, add FAQs and FAQPage schema.
+3. Gatekeeper: run /seo geo and check my robots.txt and Cloudflare for blocked AI crawlers.
+4. Feed: build an OpenAI Product Feed Spec CSV from my store (or, for services, a Google Business Profile + Bing Places checklist).
+5. Reviews: write an honest-review request for my customers.
+
+Then build me an AEO Tracker artifact like this one and set it to check my 10 questions every Monday at 9am.`,
+pInt:`You are my Interviewer. Before you research anything, interview me. Ask one question at a time, 8 questions max, and wait for my answer each time:
+1. What I sell, and my best seller
+2. Who buys it, and why they pick me over others
+3. Where I sell and ship, and my price range
+4. My website and my 3 biggest competitors
+
+Then use the DataForSEO connector (Keyword Data + AI Optimization) to find the real questions people in my niche ask ChatGPT and Google.
+
+Give me my top 10 buyer questions as a table: question, monthly searches, intent (buy, compare or learn), and whether my site answers it today.
+
+Never guess a number. If DataForSEO has no data for a question, say so.`,
+pRew:`You are my Rewriter. Here are my 10 buyer questions: [paste them].
+
+Read every page on my website: [URL, site folder, or Shopify / WordPress export].
+
+For every page:
+1. Match it to the one buyer question it should answer.
+2. Rewrite the first two lines so they answer that question directly, in plain words, with a real number: price, size range, delivery time.
+3. Add an FAQ section with 3 to 5 of the buyer questions, answered in 2 to 3 sentences each.
+4. Make it AI readable: one H1, the questions as H2s, short paragraphs, FAQPage schema.
+
+Show me a before and after for every page. Change nothing until I approve.`,
+pGate:`Run /seo geo on [https://mywebsite.com].
+
+Then check my robots.txt, my sitemap, and any firewall or CDN bot settings (Cloudflare, Shopify, Wix, Squarespace) for these AI crawlers: OAI-SearchBot, ChatGPT-User, GPTBot, ClaudeBot, PerplexityBot, Google-Extended.
+
+1. Tell me which ones are blocked, and where they're blocked.
+2. Explain what each one does in one line. OAI-SearchBot is the one that puts me in ChatGPT search.
+3. Give me the exact lines to fix it, plus where to click in Cloudflare if that's the blocker.
+4. If I don't want my content used for AI training, keep GPTBot blocked but allow OAI-SearchBot.
+
+Change nothing until I approve.`,
+pInstall:`/plugin marketplace add AgriciDaniel/claude-seo
+/plugin install claude-seo@agricidaniel-claude-seo
+/seo setup
+
+# then the Gatekeeper check
+/seo geo https://yourwebsite.com`,
+pFeed:`You are my Feed Builder. Read my store: [Shopify / WooCommerce export, product CSV, or my product page URLs].
+
+1. Build a product feed that follows OpenAI's Product Feed Spec (developers.openai.com/commerce). Every product needs all 9 required fields: item_id, title, description, url, brand, seller_name, image_url, availability, price.
+2. Use group_id to group sizes and colours of the same product.
+3. Flag every product that's missing a required field, and tell me where to find it.
+4. Rewrite titles and descriptions the way a shopper would actually ask for them.
+
+Give me the feed as a CSV, ready to submit once I'm approved at chatgpt.com/merchants.
+
+If I sell services instead: give me a checklist to fill my Google Business Profile and Bing Places 100%.`,
+pRevP:`Write me a short, warm message asking my recent customers for an honest review, good or bad, on Google and on my website.
+
+1. Mention what they bought, and when it arrived.
+2. Say why it matters: every review helps the next person decide, and tells us what to fix.
+3. If I offer a thank-you discount, it goes to everyone who leaves a review, whatever the rating, and the message says so clearly.
+4. Give me a WhatsApp version (under 60 words) and an email version with a subject line.
+
+Sound like a real person, not a brand. The more real, the better.`,
+pSched:`Set this up as a scheduled task that runs every Monday at 9am:
+
+1. Ask my 10 buyer questions using the DataForSEO AI Optimization API (LLM Responses for ChatGPT): [paste my questions].
+2. For each question, record whether [my brand] is recommended, and at what position.
+3. Add this week's column to my AEO Tracker artifact and update the rank chart.
+4. Mark the week ChatGPT first recommends me, and flag any week I drop off.
+5. Tell me what changed since last week and the one fix most likely to move me up.
+
+Draft the fix, but don't publish anything until I approve.`
+};
+for(const k in P){const el=document.getElementById(k);if(el)el.textContent=P[k]}
+
+function copyText(txt){
+  const fallback=()=>{const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()};
+  try{(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).catch(fallback)}catch(e){fallback()}
+  toast('Copied ✓');
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(b)copyText(document.getElementById(b.dataset.copy).innerText)});
+
+/* ---------- brand (own-data path) ---------- */
+const ctx=Object.assign({brand:'Mudra Active',site:'mudraactive.in'},store.get('ctx',{}));
+const brand=()=>ctx.brand.trim()||'Your brand';
+const site=()=>(ctx.site.trim()||'yourwebsite.com').replace(/^https?:\/\//,'').replace(/\/$/,'');
+function applyBrand(){$$('.bn').forEach(e=>e.textContent=brand());$$('.bsite').forEach(e=>e.textContent=site());$('#openRobots').href='https://'+site()+'/robots.txt';shelfRender(curOrder);qTable();robotsShow()}
+
+/* ---------- tabs ---------- */
+function show(t){$$('.tab').forEach(x=>x.classList.toggle('on',x.dataset.t===t));$$('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+t));try{history.replaceState(null,'','#'+t)}catch(e){}if(t==='reviews')drawBars()}
+$$('.tab').forEach(b=>b.onclick=()=>show(b.dataset.t));
+
+/* ---------- header stats ---------- */
+function count(el,to,fmt,dur=1400){const s=performance.now();(function f(n){const p=Math.min(1,(n-s)/dur),e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(to*e));if(p<1)requestAnimationFrame(f)})(s)}
+function stats(){
+  const r=$('#sRank');r.textContent='—';
+  [['#sQ',7,v=>v+'/10'],['#sBots',6,v=>v+'/6'],['#sFeed',48,v=>v],['#sRev',revTotal(),v=>v]].forEach(([s,t,f])=>count($(s),t,f));
+  ['—','#6','#4','#3','#2'].forEach((v,i)=>setTimeout(()=>{r.textContent=v},400+i*420));
+}
+
+/* ---------- rank chart ---------- */
+const ranks=[null,null,null,6,4,3,2,2];
+function chart(){
+  // narrow screens get a taller, bigger-type chart so it stays readable on a phone
+  const nar=innerWidth<700,fs=nar?20:14;
+  const W=nar?560:1000,H=nar?420:340,L=nar?52:60,R=nar?26:40,T=56,B=nar?50:46,band=nar?40:34,ph=H-T-B;
+  $('#chart').setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const usable=ph-band-18,x=i=>L+i*((W-L-R)/7),y=r=>r==null?T+ph-band/2:T+(r-1)*usable/7;
+  let s=`<rect x="${L-14}" y="${T+ph-band}" width="${W-L-R+28}" height="${band}" rx="8" fill="#F8E6E6"/>
+  <text x="${W-R+10}" y="${T+ph-band/2+5}" text-anchor="end" font-size="${fs}" font-weight="700" fill="#7A1B1B" font-family="DM Sans">not recommended</text>`;
+  for(let r=1;r<=8;r++)s+=`<line x1="${L}" x2="${W-R}" y1="${y(r)}" y2="${y(r)}" stroke="#E8DFD3" stroke-dasharray="${r===1?'0':'3 6'}"/><text x="${L-16}" y="${y(r)+5}" text-anchor="end" font-size="${fs}" font-weight="700" fill="#6E5F57" font-family="DM Sans">#${r}</text>`;
+  ranks.forEach((_,i)=>s+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#6E5F57" font-family="DM Sans">Wk ${i+1}</text>`);
+  const pts=ranks.map((r,i)=>[x(i),y(r)]);
+  s+=`<path id="ln" d="${pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ')}" fill="none" stroke="#A8174A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  pts.forEach((p,i)=>s+=`<circle class="pt" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="${ranks[i]?8:6}" fill="${ranks[i]?'#A8174A':'#C9A9A9'}" stroke="#fff" stroke-width="3" opacity="0"/>`);
+  // flag sits in the empty space up-left of week 4, clear of the line
+  const fx=x(3),fy=y(6);
+  const rx=Math.max(L+6,fx-240),rw=fx-40-rx;
+  s+=`<g id="flag" opacity="0"><path d="M${fx-12} ${fy} H${fx-40}" stroke="#5E8A47" stroke-width="2.5"/><rect x="${rx}" y="${fy-19}" width="${rw}" height="38" rx="9" fill="#5E8A47"/><text x="${rx+rw/2}" y="${fy+6}" text-anchor="middle" font-size="${nar?15:16}" font-weight="800" fill="#fff" font-family="DM Sans">ChatGPT found you</text></g>`;
+  const nx=Math.min(x(7),W-38),ny=y(2);
+  s+=`<g id="now" opacity="0"><rect x="${nx-34}" y="${ny-54}" width="68" height="36" rx="9" fill="#A8174A"/><text x="${nx}" y="${ny-29}" text-anchor="middle" font-size="19" font-weight="800" fill="#fff" font-family="Playfair Display">#2</text></g>`;
+  $('#chart').innerHTML=s;
+  const ln=$('#ln'),len=ln.getTotalLength();ln.style.strokeDasharray=len;ln.style.strokeDashoffset=len;ln.getBoundingClientRect();
+  ln.style.transition='stroke-dashoffset 2.2s cubic-bezier(.5,0,.2,1)';ln.style.strokeDashoffset=0;
+  $$('.pt').forEach(c=>setTimeout(()=>{c.style.transition='opacity .3s';c.setAttribute('opacity',1)},250+c.dataset.i*270));
+  setTimeout(()=>{$('#flag').style.transition='opacity .4s';$('#flag').setAttribute('opacity',1)},1300);
+  setTimeout(()=>{$('#now').style.transition='opacity .4s';$('#now').setAttribute('opacity',1)},2300);
+}
+
+/* ---------- forecast: share of buyer questions where ChatGPT recommends you ---------- */
+const FC=[0,0,0,10,20,30,50,70],FP=[70,78,84,88,90];
+function forecast(){const W=1000,H=380,L=70,R=30,T=30,B=50,pw=W-L-R,ph=H-T-B,n=12,x=i=>L+i*pw/(n-1),y=v=>T+ph*(1-v/100);
+  let s='';for(let v=0;v<=100;v+=25)s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#E8DFD3" stroke-dasharray="${v?'3 6':'0'}"/><text x="${L-14}" y="${y(v)+5}" text-anchor="end" font-size="15" font-weight="700" fill="#6E5F57" font-family="DM Sans">${v}%</text>`;
+  for(let i=0;i<n;i++)s+=`<text x="${x(i)}" y="${H-16}" text-anchor="middle" font-size="14" font-weight="700" fill="${i<8?'#6E5F57':'#5E8A47'}" font-family="DM Sans">Wk ${i+1}</text>`;
+  s+=`<rect x="${x(7)}" y="${T}" width="${x(11)-x(7)}" height="${ph}" fill="#EFF4EB" opacity=".7"/><text x="${(x(7)+x(11))/2}" y="${T+22}" text-anchor="middle" font-size="14" font-weight="800" fill="#5E8A47" font-family="DM Sans" letter-spacing="1">PROJECTED</text>`;
+  const area='M'+FC.map((v,i)=>x(i)+' '+y(v)).join(' L')+` L${x(7)} ${y(0)} L${x(0)} ${y(0)} Z`;
+  s+=`<path id="fcArea" d="${area}" fill="url(#fg)" opacity="0"/><defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A8174A" stop-opacity=".28"/><stop offset="1" stop-color="#A8174A" stop-opacity="0"/></linearGradient></defs>`;
+  s+=`<path id="fcLine" d="M${FC.map((v,i)=>x(i)+' '+y(v)).join(' L')}" fill="none" stroke="#A8174A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s+=`<path id="fcProj" d="M${FP.map((v,i)=>x(7+i)+' '+y(v)).join(' L')}" fill="none" stroke="#5E8A47" stroke-width="5" stroke-dasharray="12 10" stroke-linecap="round" opacity="0"/>`;
+  FC.forEach((v,i)=>s+=`<circle class="fpt" data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="7" fill="#A8174A" stroke="#fff" stroke-width="3" opacity="0"/>`);
+  s+=`<g id="fcToday" opacity="0"><line x1="${x(7)}" x2="${x(7)}" y1="${y(70)+12}" y2="${y(0)}" stroke="#A8174A" stroke-width="2" stroke-dasharray="4 5"/><circle cx="${x(7)}" cy="${y(70)}" r="12" fill="#A8174A" stroke="#fff" stroke-width="4"/><rect x="${x(7)-150}" y="${y(70)-62}" width="130" height="40" rx="10" fill="#A8174A"/><text x="${x(7)-85}" y="${y(70)-35}" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="DM Sans">Today · 70%</text></g>`;
+  s+=`<g id="fcGoalM" opacity="0"><circle cx="${x(11)}" cy="${y(90)}" r="12" fill="#5E8A47" stroke="#fff" stroke-width="4"/><rect x="${x(11)-150}" y="${y(90)-62}" width="140" height="40" rx="10" fill="#5E8A47"/><text x="${x(11)-80}" y="${y(90)-35}" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="DM Sans">Week 12 · 90%</text></g>`;
+  $('#fc').innerHTML=s;
+  const ln=$('#fcLine'),len=ln.getTotalLength();ln.style.strokeDasharray=len;ln.style.strokeDashoffset=len;ln.getBoundingClientRect();ln.style.transition='stroke-dashoffset 1.6s cubic-bezier(.5,0,.2,1)';ln.style.strokeDashoffset=0;
+  $$('.fpt').forEach(c=>setTimeout(()=>{c.style.transition='opacity .25s';c.setAttribute('opacity',1)},150+c.dataset.i*190));
+  const fade=(id,t)=>setTimeout(()=>{$(id).style.transition='opacity .45s';$(id).setAttribute('opacity',1)},t);
+  fade('#fcArea',900);fade('#fcToday',1650);fade('#fcProj',2300);fade('#fcGoalM',3000);
+  count($('#fcNow'),70,v=>v+'%',1500);count($('#fcUp'),70,v=>'+'+v,1500);setTimeout(()=>count($('#fcGoal'),90,v=>v+'%',900),2300)}
+$('#fcPlay').onclick=forecast;
+
+/* ---------- shelf answer ---------- */
+const SH=[
+ {n:'Kosha Fit',d:'Seamless gym sets',p:'₹1,899',s:'4.5 ★ · 1.2K reviews',c:'#C9B8E8'},
+ {you:1,d:'Squat-proof leggings',p:'₹1,299',s:'4.6 ★ · 212 reviews',c:'#F2B8C6'},
+ {n:'Run Theory',d:'Running shorts',p:'₹999',s:'4.3 ★ · 640 reviews',c:'#B8D8E8'},
+ {n:'Asana Wear',d:'Yoga pants with pockets',p:'₹1,499',s:'4.4 ★ · 380 reviews',c:'#D8E8B8'}];
+let curOrder=[0,1,2,3],shelfT=[];
+function shelfRender(o){curOrder=o;$('#shelfRow').innerHTML=o.map((k,i)=>{const p=SH[k];return `<div class="pc${p.you?' you':''}"><div class="im" style="background:linear-gradient(135deg,${p.c},#fff)"><div class="rk">${i+1}</div></div><b>${esc(p.you?brand():p.n)}${p.you?'<span class="youtag">YOU</span>':''}</b><div class="ds">${p.d} · ${p.p}</div><div class="st">${p.s}</div></div>`}).join('')}
+function shelf(){shelfT.forEach(clearTimeout);shelfRender([0,2,3,1]);shelfT=[setTimeout(()=>shelfRender([0,2,1,3]),1100),setTimeout(()=>shelfRender([0,1,2,3]),2000)]}
+
+/* ---------- heat grid ---------- */
+const Q=[
+ ['best activewear brands in India for women',6600,'cmp',1],
+ ['squat proof leggings India',2900,'buy',1],
+ ['sustainable activewear brands India',1900,'cmp',1],
+ ['best sports bra for running, high impact',1600,'buy',1],
+ ['gym wear for women under ₹1,500',1300,'buy',0],
+ ['best men\'s running shorts India',1200,'buy',0],
+ ['plus size activewear India',1000,'buy',1],
+ ['yoga pants with pockets India',880,'buy',0],
+ ['activewear for humid weather',720,'learn',1],
+ ['is {brand} good quality',390,'cmp',1]];
+const qText=q=>q[0].replace('{brand}',brand());
+const H=[[0,0,0,6,4,3,2,2],[0,0,0,0,3,2,1,1],[0,0,0,0,0,5,4,3],[0,0,0,0,5,4,4,3],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,3,2,2,2,1],[0,0,0,0,0,0,0,0],[0,0,0,0,4,3,2,2],[0,0,0,1,1,1,1,1]];
+let weeksShown=7;
+function heat(){
+  let h='<tr><th>Buyer question</th>'+Array.from({length:8},(_,i)=>`<th style="text-align:center" class="${i<4?'hidew':''}">Wk ${i+1}</th>`).join('')+'</tr>';
+  Q.forEach((q,r)=>{h+=`<tr><td style="font-weight:600;min-width:150px">${esc(qText(q))}</td>`;for(let w=0;w<8;w++){const hw=w<4?' hidew':'';if(w>=weeksShown){h+=`<td class="hc c0${hw}">·</td>`;continue}const v=H[r][w],c=!v?'c0':v<=2?'c1':v<=4?'c2':'c3';h+=`<td class="hc ${c}${hw}${w===7?' new':''}">${v?'#'+v:'—'}</td>`}h+='</tr>'});
+  $('#heat').innerHTML=h;
+}
+$('#runWeek').onclick=async function(){
+  this.disabled=true;weeksShown=7;heat();this.textContent='Asking ChatGPT…';await sleep(800);
+  for(let i=1;i<=10;i++){this.textContent=`Checked ${i}/10`;await sleep(140)}
+  weeksShown=8;heat();this.textContent='Week 8 added ✓';toast('This week: #2 on your main question');
+  setTimeout(()=>{this.disabled=false;this.textContent='Run this week\'s check'},2400);
+};
+
+/* ---------- interviewer ---------- */
+$$('[data-k]').forEach(i=>{if(ctx[i.dataset.k]!=null)i.value=ctx[i.dataset.k];i.oninput=()=>{ctx[i.dataset.k]=i.value;store.set('ctx',ctx);meter();if(i.dataset.k==='brand'||i.dataset.k==='site')applyBrand()}});
+function meter(){const f=$$('[data-k]'),n=f.filter(i=>i.value.trim().length>2).length,p=Math.round(n/f.length*100);$('#ctxMeter').style.width=p+'%';$('#ctxPct').textContent=p+'%'}
+const intent={buy:['t-buy','Buy'],cmp:['t-cmp','Compare'],learn:['t-learn','Learn']};
+function qTable(n=10){$('#qTable').innerHTML='<tr><th>#</th><th>Buyer question</th><th>Searches /mo</th><th>Intent</th><th class="hidem">On your site?</th></tr>'+Q.slice(0,n).map((q,i)=>`<tr class="${i===n-1&&n<10?'new':''}"><td style="font-weight:800;color:var(--berry)">${i+1}</td><td style="font-weight:600">${esc(qText(q))}</td><td style="font-weight:800">${q[1].toLocaleString('en-IN')}</td><td><span class="tag ${intent[q[2]][0]}">${intent[q[2]][1]}</span></td><td class="hidem ${q[3]?'ok':'no'}">${q[3]?'✓ yes':'✗ not yet'}</td></tr>`).join('')}
+async function runChecks(box,items,gap=480){box.innerHTML=items.map(t=>`<div class="ck"><div class="dot"></div><div>${t[0]}</div><div class="res2"></div></div>`).join('');const rows=[...box.children];for(let i=0;i<rows.length;i++){rows[i].classList.add('run');await sleep(gap);rows[i].classList.remove('run');rows[i].classList.add('done');rows[i].querySelector('.dot').textContent='✓';rows[i].querySelector('.res2').textContent=items[i][1]||''}}
+$('#runInterview').onclick=async function(){
+  this.disabled=true;$('#qTable').innerHTML='';['#iv1','#iv2','#iv3','#iv4'].forEach(s=>$(s).textContent='…');
+  await runChecks($('#ivChecks'),[['Reading your answers','6 of 6'],['DataForSEO · keyword ideas','412 found'],['DataForSEO · AI search volume','86 with data'],['Ranking by buyer intent','top 10 kept']],520);
+  count($('#iv1'),412,v=>v);count($('#iv3'),18490,v=>v.toLocaleString('en-IN'));
+  for(let n=1;n<=10;n++){qTable(n);$('#iv2').textContent=n;await sleep(110)}
+  $('#iv4').textContent='7/10';this.disabled=false;toast('10 buyer questions ready');
+};
+$('#copyQ').onclick=()=>copyText(Q.map((q,i)=>`${i+1}. ${qText(q)} (${q[1].toLocaleString('en-IN')}/mo, ${intent[q[2]][1].toLowerCase()})`).join('\n'));
+
+/* ---------- rewriter ---------- */
+const PG=[
+ {t:'Home',q:'best activewear brands in India for women',b:'Welcome to {brand}! We are a passionate team on a mission to make you feel your best every single day.',a:'<mark>{brand} makes squat-proof leggings, sports bras and running shorts for Indian weather</mark>, in sizes XS to 4XL, from ₹999. Made in Tiruppur, delivered across India in 3 days.',f:['Is {brand} an Indian brand?','What sizes do you make?','How long does delivery take?'],s:[38,92]},
+ {t:'Leggings',q:'squat proof leggings India',b:'Our signature leggings. Buttery soft. Endlessly comfortable. Shop the collection now.',a:'<mark>Yes, every {brand} legging is squat-proof:</mark> each fabric passes a 50-squat test before it ships. 4 fabrics, ₹1,299 to ₹1,899, XS to 4XL.',f:['Are these leggings see-through?','Which fabric is best for running?','Do they have pockets?'],s:[41,95]},
+ {t:'Sports bras',q:'best sports bra for running, high impact',b:'Support you can count on. Discover our range of sports bras for every workout.',a:'<mark>For running, pick the High-Impact bra:</mark> encapsulated cups, adjustable straps, tested on 10K runs. Sizes 30A to 42F, ₹1,499.',f:['Which bra is best for running?','How do I find my size?','Can I machine wash it?'],s:[35,90]},
+ {t:'Sustainability',q:'sustainable activewear brands India',b:'We care about the planet. Sustainability is at the heart of everything we do.',a:'<mark>62% of our fabric is recycled nylon,</mark> and every order ships plastic-free. Here is exactly where each fabric comes from.',f:['Is recycled fabric durable?','Where is it made?','Is the packaging plastic-free?'],s:[30,88]},
+ {t:'Plus size',q:'plus size activewear India',b:'Inclusive sizing for every body. Because everyone deserves to move.',a:'<mark>Every style comes in sizes up to 4XL,</mark> cut on real plus-size fit models, not just scaled up. Same price for every size.',f:['What is the biggest size?','Do plus sizes cost more?','How do the sizes run?'],s:[44,93]},
+ {t:'Humid weather guide',q:'activewear for humid weather',b:'Summer is here! Check out our latest blog post about staying cool.',a:'<mark>For humid weather, wear quick-dry fabric under 180 GSM</mark> with mesh panels. Our Monsoon range dries in 22 minutes after a run.',f:['What fabric is best for humidity?','Cotton or polyester for the gym?','How do I stop chafing?'],s:[33,89]}];
+const B=s=>s.replace(/\{brand\}/g,esc(brand()));
+let pgSel=0,pgDone=store.get('pgDone',[]);
+function rwStats(){const avg=Math.round(PG.reduce((a,p,i)=>a+(pgDone.includes(i)?p.s[1]:p.s[0]),0)/PG.length);$('#rwAvg').textContent=avg;$('#rwAvg').className=avg>80?'g':'p';$('#rwFaq').textContent=pgDone.length*3;$('#rwDone').textContent=pgDone.length+'/6'}
+function pages(){$('#pages').innerHTML=PG.map((p,i)=>{const d=pgDone.includes(i);return `<div class="pg${i===pgSel?' sel':''}" data-i="${i}"><div><b>${p.t}</b><span>${p.q}</span></div><div class="score" style="color:${d?'var(--sage)':'var(--burgundy)'}">${d?p.s[1]:p.s[0]}</div></div>`}).join('');$$('.pg').forEach(e=>e.onclick=()=>{pgSel=+e.dataset.i;pages();pageView()});rwStats()}
+const CK=[['Answer in the first two lines','pass'],['FAQ section added','3 questions'],['Questions as H2s, one H1','pass'],['FAQPage schema','valid']];
+function pageView(){const p=PG[pgSel],d=pgDone.includes(pgSel);$('#pgTitle').textContent=p.t+' page · "'+p.q+'"';$('#before').innerHTML=B(p.b);$('#after').innerHTML=B(p.a);$('#faq').innerHTML=p.f.map(x=>`<div>${B(x)}</div>`).join('');$('#approve').textContent=d?'Approved ✓':'Approve rewrite';$('#approve').disabled=d;
+ $('#pgChecks').innerHTML=CK.map(t=>`<div class="ck ${d?'done':''}"><div class="dot">${d?'✓':''}</div><div>${t[0]}</div><div class="res2">${d?t[1]:''}</div></div>`).join('')}
+$('#approve').onclick=async()=>{await runChecks($('#pgChecks'),CK,330);if(!pgDone.includes(pgSel))pgDone.push(pgSel);store.set('pgDone',pgDone);pages();pageView();toast('Rewrite approved')};
+$('#rewriteAll').onclick=async function(){this.disabled=true;for(let i=0;i<PG.length;i++){pgSel=i;pages();pageView();await sleep(450);if(!pgDone.includes(i))pgDone.push(i);pages();pageView();await sleep(250)}store.set('pgDone',pgDone);this.disabled=false;this.textContent='All 6 pages rewritten ✓'};
+
+/* ---------- gatekeeper ---------- */
+const BOTS=[['OAI-SearchBot','Puts you in ChatGPT search answers',0],['ChatGPT-User','Reads your page when someone asks ChatGPT',1],['GPTBot','OpenAI model training',0],['ClaudeBot','Claude',1],['PerplexityBot','Perplexity answers',0,'blocked at Cloudflare'],['Google-Extended','Gemini and AI Overviews',1]];
+let gate='idle';
+function robotsShow(){const sm=`Sitemap: https://${esc(site())}/sitemap.xml`;
+ $('#robots').innerHTML=gate==='fixed'?`User-agent: *\nAllow: /\n\n<span class="add">User-agent: OAI-SearchBot\nAllow: /</span>\n\n<span class="add">User-agent: GPTBot\nAllow: /</span>\n\n<span class="add">User-agent: PerplexityBot\nAllow: /</span>\n<span class="add"># + Cloudflare → AI Crawl Control → allow PerplexityBot</span>\n\n${sm}`
+ :`User-agent: *\nAllow: /\n\n<span class="${gate==='idle'?'':'del'}">User-agent: GPTBot\nDisallow: /</span>\n\n<span class="${gate==='idle'?'':'del'}">User-agent: OAI-SearchBot\nDisallow: /</span>\n\n${sm}`;
+ $('#robLbl').textContent=gate==='fixed'?'the fix':'today'}
+function bots(){$('#bots').innerHTML=BOTS.map(b=>{const ok=gate==='fixed'||b[2];const p=gate==='idle'?'<span class="pill">not checked</span>':ok?'<span class="pill y">✓ allowed</span>':'<span class="pill n">✕ blocked</span>';return `<div class="bot" style="border-color:${gate==='idle'?'':ok?'#BBD3AC':'#E0B4B4'}"><div><b>${b[0]}</b><span>${b[1]}${!ok&&b[3]&&gate!=='idle'?' · '+b[3]:''}</span></div>${p}</div>`}).join('')}
+function gateStats(){const g=gate==='idle';$('#gk1').textContent=g?'?':gate==='fixed'?'0':'3';$('#gk2').textContent=g?'?':gate==='fixed'?'0':'1';$('#gk3').textContent=g?'?/6':gate==='fixed'?'6/6':'3/6';$('#gk3').className=gate==='fixed'?'g':'p'}
+$('#runGate').onclick=async function(){this.disabled=true;gate='idle';bots();robotsShow();gateStats();
+  const rows=[...$('#bots').children];
+  for(let i=0;i<BOTS.length;i++){rows[i].querySelector('.pill').outerHTML='<span class="pill">checking…</span>';await sleep(360);const b=BOTS[i];rows[i].querySelector('.pill').outerHTML=b[2]?'<span class="pill y">✓ allowed</span>':'<span class="pill n">✕ blocked</span>';if(!b[2]&&b[3])rows[i].querySelector('span').textContent+=' · '+b[3];rows[i].style.borderColor=b[2]?'#BBD3AC':'#E0B4B4'}
+  gate='checked';robotsShow();gateStats();$('#sBots').textContent='3/6';$('#fixBots').disabled=false;this.disabled=false;toast('3 AI crawlers are blocked')};
+$('#fixBots').onclick=()=>{gate='fixed';bots();robotsShow();gateStats();$('#sBots').textContent='6/6';$('#fixBots').disabled=true;toast('Fix previewed. Nothing changed until you approve')};
+
+/* ---------- feed ---------- */
+const REQ=['item_id','title','description','url','brand','seller_name','image_url','availability','price'];
+const base=[
+ ['MA-LEG-01','High-rise squat-proof leggings','Squat-tested, 4-way stretch','/leggings/high-rise','B','B','✓','in_stock','1299'],
+ ['MA-LEG-02','Monsoon quick-dry leggings','Dries in 22 minutes','/leggings/monsoon','B','B','','in_stock','1499'],
+ ['MA-BRA-01','High-impact running bra','Encapsulated cups, 30A to 42F','/bras/high-impact','B','B','✓','in_stock','1499'],
+ ['MA-BRA-02','Everyday low-impact bra','','/bras/everyday','B','B','✓','in_stock','999'],
+ ['MA-SHO-01','Men\'s 5" running shorts','Liner + zip pocket','/shorts/run-5','','B','✓','in_stock','999'],
+ ['MA-YOG-01','Yoga pants with side pockets','Two deep pockets','/yoga/pockets','B','B','✓','preorder','1499'],
+ ['MA-SET-01','Seamless gym set, sage','Top + leggings','/sets/sage','B','B','','in_stock','2499'],
+ ['MA-PLU-01','Plus-size high-rise leggings','Cut on 2XL to 4XL fit models','/plus/high-rise','B','B','✓','in_stock','1299']];
+let feed=store.get('feed2',null)||base.map(r=>[...r]);
+const val=(r,i)=>r[i]==='B'?brand():r[i];
+function feedTable(){
+  const miss=feed.reduce((a,r)=>a+r.filter(v=>!v).length,0),ready=feed.filter(r=>r.every(v=>v)).length;
+  $('#fd1').textContent=feed.length;$('#fd2').textContent=miss;$('#fd2').className=miss?'r':'g';$('#fd3').textContent=ready+'/'+feed.length;
+  $('#feedTable').innerHTML='<tr><th class="hidem">item_id</th><th>Title</th><th>Price</th><th class="hidem">Availability</th><th style="text-align:center">Required fields</th></tr>'+feed.map(r=>{const m=REQ.filter((_,i)=>!r[i]);return `<tr><td class="hidem" style="font-family:ui-monospace,Menlo;font-size:13px;white-space:nowrap">${esc(r[0])}</td><td style="font-weight:600">${esc(r[1])}</td><td style="font-weight:700;white-space:nowrap">${r[8]?'₹'+Number(r[8]).toLocaleString('en-IN'):'<span class="miss">price</span>'}</td><td class="hidem">${r[7]}</td><td style="text-align:center">${m.length?m.map(x=>`<span class="miss">${x}</span>`).join(' '):'<span class="ok">9/9 ✓</span>'}</td></tr>`}).join('');
+}
+$('#buildFeed').onclick=async function(){this.disabled=true;const fills={2:'Feels like nothing, holds like everything',4:'B',6:'✓',3:'/products/new',8:'1499'};
+  for(const r of feed){for(const i in fills)if(!r[i]){r[i]=fills[i];feedTable();await sleep(240)}}
+  store.set('feed2',feed);feedTable();this.disabled=false;toast('Feed ready to download')};
+function csv(){const q=v=>'"'+String(v).replace(/"/g,'""')+'"',s='https://'+site();
+  return [REQ.join(',')].concat(feed.map(r=>REQ.map((k,i)=>{let v=val(r,i);if(k==='url'&&v.startsWith('/'))v=s+v;if(k==='image_url'&&v==='✓')v=s+'/img/'+r[0].toLowerCase()+'.jpg';if(k==='price'&&v)v=v+' INR';return q(v)}).join(','))).join('\n')}
+let dl=null;
+$('#dlFeed').onclick=async()=>{const data=csv(),name='chatgpt-product-feed.csv';
+  if(dl){try{await dl.save({filename:name,data});toast('CSV saved')}catch(e){if(e&&e.code!=='declined')toast('Download not available here')}return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'text/csv'}));a.download=name;document.body.appendChild(a);a.click();a.remove();toast('CSV downloaded')}catch(e){copyText(data)}};
+if(window.claude&&claude.use)claude.use('downloads').then(d=>{dl=d}).catch(()=>{});
+$('#addProd').onclick=()=>{const v={};$$('[data-a]').forEach(i=>v[i.dataset.a]=i.value.trim());if(!v.title){toast('Add a title first');return}
+  feed.push(['MY-'+String(feed.length+1).padStart(3,'0'),v.title,'',v.url,'B','B',v.image_url,'in_stock',v.price.replace(/[^\d.]/g,'')]);store.set('feed2',feed);$$('[data-a]').forEach(i=>i.value='');feedTable();toast('Added. Hit Build my feed')};
+$$('#seg button').forEach(b=>b.onclick=()=>{$$('#seg button').forEach(x=>x.classList.toggle('on',x===b));$('#mProducts').style.display=b.dataset.m==='products'?'':'none';$('#mServices').style.display=b.dataset.m==='services'?'':'none'});
+const GBP=[['Primary + secondary categories','The biggest local ranking signal'],['Description answers your top 3 buyer questions','Reuse your Rewriter lines'],['Every service with a price','AI quotes prices when they exist'],['Hours, service area, phone','Must match your website exactly'],['10+ real photos','Team, work, before and after'],['Q&A seeded with your buyer questions','Answer them yourself'],['One post a week','Offers, updates, recent jobs']];
+const BING=[['Import from Google Business Profile','One click, then check every field'],['Same name, address, phone as Google','Mismatches confuse AI'],['Categories match Google','Copilot and ChatGPT read Bing'],['Website + booking link','So AI can send people straight to you'],['Photos uploaded','Copied on import, check them']];
+function tasks(id,list){const done=store.get(id,[]);const box=$('#'+id);box.innerHTML=list.map((t,i)=>`<label class="task${done.includes(i)?' done':''}"><input type="checkbox" data-i="${i}" ${done.includes(i)?'checked':''}><div><b>${t[0]}</b><span>${t[1]}</span></div></label>`).join('');const upd=()=>{const d=[...box.querySelectorAll('input')].filter(x=>x.checked).map(x=>+x.dataset.i);store.set(id,d);const p=Math.round(d.length/list.length*100);$('#'+id+'Pct').textContent=p+'%';$('#'+id+'M').style.width=p+'%';box.querySelectorAll('.task').forEach((t,i)=>t.classList.toggle('done',d.includes(i)))};box.onchange=upd;upd()}
+
+/* ---------- reviews ---------- */
+let rev=store.get('rev',[164,30,6,4,8]);
+const revTotal=()=>rev.reduce((a,b)=>a+b,0);
+function drawBars(){const tot=revTotal(),avg=rev.reduce((a,v,i)=>a+v*(5-i),0)/tot;
+ $('#rv1').textContent=avg.toFixed(1);$('#rv2').textContent=tot;$('#rv3').textContent=rev[3]+rev[4];$('#sRev').textContent=tot;$('#sRevAvg').textContent=avg.toFixed(1)+' average';
+ $('#bars').innerHTML=rev.map((v,i)=>`<div class="br"><span>${5-i} ★</span><div class="tr"><i data-w="${v/tot*100}"></i></div><span style="text-align:right">${v}</span></div>`).join('');
+ requestAnimationFrame(()=>requestAnimationFrame(()=>$$('#bars i').forEach(i=>i.style.width=i.dataset.w+'%')))}
+$('#logStars').innerHTML=[5,4,3,2,1].map(n=>`<button data-n="${n}">${'★'.repeat(n)}</button>`).join('');
+$$('#logStars button').forEach(b=>b.onclick=()=>{const n=+b.dataset.n;rev[5-n]++;store.set('rev',rev);drawBars();toast(n+' star review logged')});
+const MSG={wa:()=>`Hi Priya! Thank you for ordering the squat-proof leggings 💛 Would you leave us an honest review on Google? Good or bad, it genuinely helps us get better. As a thank you, everyone who reviews gets 10% off their next order, whatever they rate us.\n\n[review link]`,
+em:()=>`Subject: How are the leggings treating you?\n\nHi Priya,\n\nIt's been two weeks since your ${brand()} order arrived, so this is the honest moment: how are they holding up?\n\nIf you have two minutes, we'd love an honest review on Google, good or bad. Every review helps the next person decide, and it tells us what to fix.\n\nAs a thank you, everyone who leaves a review gets 10% off their next order, whatever rating they give.\n\n[review link]\n\nAnanya, founder`};
+let msgV='wa';const setMsg=v=>{msgV=v;$('#revMsg').textContent=MSG[v]();$$('#rseg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))};
+$$('#rseg button').forEach(b=>b.onclick=()=>setMsg(b.dataset.v));
+
+/* ---------- boot ---------- */
+function play(){stats();chart();shelf();weeksShown=7;heat();forecast()}
+meter();qTable();pages();pageView();bots();robotsShow();gateStats();feedTable();tasks('gbp',GBP);tasks('bing',BING);drawBars();setMsg('wa');applyBrand();
+const h=location.hash.slice(1);if(h&&$('#p-'+h))show(h);
+play();
+$('#replay').onclick=()=>{show('shelf');scrollTo(0,0);play()};
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(chart,250)});
+</script>
+</body>
+</html>
